@@ -1,4 +1,4 @@
-﻿# [Z835](https://github.com/mcuyun/Z8350) 
+﻿# [Z8350](https://github.com/mcuyun/Z8350) 
 
 [![sites](mcuyun/mcuyun.png)](http://www.mcuyun.com)
 
