@@ -8,9 +8,17 @@
 
 ## [描述](https://github.com/mcuyun/Z8350/wiki) 
 
-高水平的入门级x86处理器，拥有不错的性价比
 
-### [组成](mcuyun/)
+#### 处理能力
+[![sites](docs/CPU.png)](docs/)
+#### 内存支持
+[![sites](docs/DDR.png)](docs/)
+#### 显示能力
+[![sites](docs/GPU.png)](docs/)
+#### 通信能力
+[![sites](docs/interface.png)](docs/)
+#### 封装和其他
+[![sites](docs/package.png)](docs/)
 
 
 
