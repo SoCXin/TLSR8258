@@ -1,33 +1,22 @@
-﻿# [Z83XX](https://github.com/sochub/Z83)
+﻿# [Z8350](https://github.com/sochub/Z8350)
+[![sites](http://182.61.61.133//resources/SoC.png)](http://www.qitas.cn) 
 
-[![sites](SoC/SoC.png)](http://www.qitas.cn) 
+#### [Vendor](https://github.com/sochub/Vendor) ：[Intel](https://www.Intel.com)
+#### [x86](https://github.com/sochub/x86) ：Cherry Trail-T" 
+#### [Level](https://github.com/sochub/Level) ：
 
-#### 归属：[Intel Atom X](https://github.com/sochub/atom)
+## [芯片描述](https://github.com/sochub/Z8350/wiki) 
 
-## [描述](https://github.com/sochub/Z83/wiki) 
+[Z8350](https://github.com/sochub/Z8350) 是应用于移动设备的 Cherry Trail-T" (14 nm) 
 
-应用于移动设备的 Cherry Trail-T" (14 nm) 低阶产品
+芯片设计 TDP 2.17 W 
 
-芯片设计 TDP 2.17 W ，UTFCBGA592 封装 17 mm × 17 × 1.0 mm
+UTFCBGA592 封装 17 mm × 17 × 1.0 mm
 
-包括 Z8300/Z8330/Z8350 三个型号，1.44GHz - 1.92GHz
+包括 Z8300/Z8330/Z8350三个型号，1.44GHz - 1.92GHz
 
-#### 处理能力
-[![sites](docs/CPU.png)](docs/)
-#### 内存支持
-[![sites](docs/DDR.png)](docs/)
-#### 显示能力
-[![sites](docs/GPU.png)](docs/)
-#### 通信能力
-[![sites](docs/interface.png)](docs/)
-#### 封装和其他
-[![sites](docs/package.png)](docs/)
+### [选择建议](https://github.com/sochub)
 
+[Z8350](https://github.com/sochub/Z8350)
 
-
-
----
-
-###  [SoC开发平台](http://www.qitas.cn)   
-
-###  qitas@qitas.cn
+###  [SoC资源平台](http://www.qitas.cn)   
