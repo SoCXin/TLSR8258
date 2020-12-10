@@ -1,0 +1,125 @@
+/********************************************************************************************************
+ * @file     boot.link
+ *
+ * @brief    This file tells the linker how to link the compiled object files and libraries
+ *
+ * @author   junwei.lu@telink-semi.com
+ * @date     May 8, 2018
+ *
+ * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *           
+ *           The information contained herein is confidential property of Telink 
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms 
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai) 
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading 
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this 
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided. 
+ *           
+ *******************************************************************************************************/
+
+/* to tell the linker the program begin from __start label in cstartup.s, thus do not treat it as a unused symbol */
+ENTRY(__start)
+
+RAM_START_ADDR = 0x840000;			/* 8258:    0x840000     other than 8258:  0x808000*/
+
+SECTIONS
+{
+    . = 0x0;
+        .vectors :
+        {
+        *(.vectors)
+        *(.vectors.*)	/* MUST as follows, when compile with -ffunction-sections -fdata-sections, session name may changed */
+        }
+        .ram_code :
+        {
+        *(.ram_code)
+        *(.ram_code.*)
+        }
+        
+	. = (((. + 15) / 16)*16);
+    PROVIDE(_rstored_ = . );
+	. = . + RAM_START_ADDR ;
+
+    .retention_data :
+    AT ( _rstored_ )
+    {
+    PROVIDE(_retention_data_start_ = . );
+    *(.retention_data)
+    *(.retention_data.*)
+    PROVIDE(_retention_data_end_ = . );
+    }        
+
+    .data :
+    {
+		. = (((. + 15) / 16)*16);
+     PROVIDE(_start_data_ = . );
+     *(.data);
+     *(.data.*);
+     PROVIDE(_end_data_ = . );
+    }
+
+    .bss :
+    {
+		. = (((. + 15) / 16)*16);
+		PROVIDE(_start_bss_ = .);
+      *(.sbss)
+      *(.sbss.*)
+      *(.bss)
+      *(.bss.*)
+  	}
+    PROVIDE(_end_bss_ = .);
+    
+	. = (((. + 15) / 16)*16);
+	. = . - RAM_START_ADDR ;
+        
+    PROVIDE(_ramcode_size_ = . );
+	PROVIDE(_ramcode_size_div_16_ = (. + 15 ) / 16);
+	PROVIDE(_ramcode_size_div_256_ = (. + 255) / 256);
+	PROVIDE(_ramcode_size_div_16_align_256_ = ( (. + 255) / 256) * 16);
+	PROVIDE(_ramcode_size_align_256_ = ( _ramcode_size_div_16_align_256_)* 16);
+	
+    . = 0x8000; 	
+    .text :
+    {
+    *(.text)
+    *(.text.*)
+    }
+    .rodata :
+    {
+    *(.rodata)
+    *(.rodata.*)
+    }
+
+   PROVIDE(_bin_size_ = .);
+
+	. = (((. + 15) / 16)*16);
+	_dstored_ = .;
+
+	. = RAM_START_ADDR + 0x8900;
+
+	. = (((. + 15) / 16)*16);
+    .no_ret_data  :
+		 AT (  _dstored_ )
+     {
+		 _start_noret_data_ = . ;
+     *(.no_ret_data); 
+     *(.no_ret_data.*); 
+     }
+		 _end_noret_data_ = . ;
+    
+	. = (((. + 15) / 16)*16);
+		.no_ret_bss (NOLOAD) :
+		{
+	_start_noret_bss_ = .;
+    *(.no_ret_sbss)
+    *(.no_ret_sbss.*)
+    *(.no_ret_bss)
+    *(.no_ret_bss.*)
+	_end_noret_bss_ = .;
+    }
+
+   
+}

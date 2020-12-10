@@ -1,0 +1,75 @@
+
+
+/* to tell the linker the program begin from __start label in cstartup.s, thus do not treat it as a unused symbol */
+ENTRY(__start)
+
+RAM_START_ADDR = 0x840000;			/* 8258:    0x840000     other than 8258:  0x808000*/
+
+SECTIONS
+{
+    . = 0x0;
+        .vectors :
+        {
+        *(.vectors)
+        *(.vectors.*)		/* MUST as follows, when compile with -ffunction-sections -fdata-sections, session name may changed */
+        }
+        .ram_code :
+        {
+        *(.ram_code)
+        *(.ram_code.*)
+        }
+	. = (((. + 3) / 4)*4);
+	_dstored_data_ = .;
+	. = . + RAM_START_ADDR ;
+        .data :
+         AT ( _dstored_data_ )
+         {
+         _start_data_ = . ;
+         *(.data); 
+         *(.data.*); 
+         _end_data_ = . ;  
+         }
+	. = (((. + 3) / 4)*4);	/* 如果要减少bin大小，可以将bss放在 noret_bss 段之前，然后 cstatup.s 里面根据 retention 状态决定是否初始化 bss 段*/
+        .bss :
+        {
+        *(.sbss)
+        *(.sbss.*)
+        *(.bss)
+        *(.bss.*)
+        }
+	. = (((. + 3) / 4)*4);
+	. = . - RAM_START_ADDR ;
+
+	_ramcode_size_ = . ;
+	_ramcode_size_div_16_ = (. + 15 ) / 16;
+	_ramcode_size_div_16_align_256_ = ((. + 255 ) / 256  * 256 / 16);
+	_ramcode_size_div_256_ = (. + 255) / 256;
+	_ramcode_size_align_ = (. + 255) / 256 * 256;
+        .text :
+        {
+        *(.text)
+        *(.text.*)
+        }
+        .rodata :
+        {
+        *(.rodata)
+        *(.rodata.*)
+        }
+	__bin_size__ = .;
+
+	. = (((. + 3) / 4)*4);
+	_dstored_ = .;
+	
+	. = RAM_START_ADDR + 0x900 + _ramcode_size_align_;
+	
+		.noret_bss (NOLOAD) :
+		 AT (  _dstored_ )
+		{
+	_start_bss_ = .;
+    *(.sbss)
+    *(.sbss.*)
+    *(.bss)
+    *(.bss.*)
+	_end_bss_ = .;
+    }
+}

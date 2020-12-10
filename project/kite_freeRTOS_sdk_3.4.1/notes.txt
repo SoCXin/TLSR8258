@@ -1,0 +1,38 @@
+Release Notes: 8258_freertos_sdk_1.7
+1, retention的时候要恢复定时器
+
+Release Notes: 8258_freertos_sdk_1.6
+1, 优化内存占用
+2，修改文件, liblt_8258.a, rf_drv.c, cstartup_8258_ret_32k.s, boot.link
+
+
+
+Release Notes: 8258_freertos_sdk_1.5
+要注意，deep retention的时候，内存使用会增加。请确认是否大于 32K
+
+以下 4 个文件不要修改
+	cstartup_8258_32k_ret.s
+	boot.link
+	port.c
+	pm_32k_rc.c
+
+app.c 以下两行注意：
+		blc_pm_setDeepsleepRetentionEarlyWakeupTiming(800);		// 这个时间增加到 800 必须
+//	app_ui_init_deepRetn();																// 注释掉
+
+app_config.h
+	#define BLE_REMOTE_SECURITY_ENABLE    0								// 关闭 HID, SMP
+	#define BLT_SOFTWARE_TIMER_ENABLE			0								// 关闭 software timer
+
+main.c
+	
+	// 增加下面两句初始化必须为 0
+	#if (BATT_CHECK_ENABLE) 
+		adc_hw_initialized = 0;
+	#endif
+		blt_dma_tx_rptr = 0;
+
+	// deep回来恢复 task
+	if(deepRetWakeUp){
+		task_restore(1);
+	}
