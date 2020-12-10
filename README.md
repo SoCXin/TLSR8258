@@ -3,12 +3,12 @@
 [![sites](http://182.61.61.133/link/resources/SoC.png)](http://www.SoC.Xin)
 
 #### [Vendor](https://github.com/SoCXin/Vendor) ：[Telink](https://www.telink-semi.com/)
-#### [Core](https://github.com/SoCXin/Cortex)：[Cortex M0](https://github.com/SoCXin/CM0)
+#### [Core](https://github.com/SoCXin/RISC)：[RISC](https://github.com/SoCXin/RISC)
 #### [Level](https://github.com/SoCXin/Level)：48MHz
 
 ## [TLSR8253描述](https://github.com/SoCXin/TLSR8253/wiki)
 
-[TLSR8253](https://github.com/SoCXin/TLSR8253)
+[TLSR8253](https://github.com/SoCXin/TLSR8253) supports BLE 5.0 with 2X data rate, 4X long range (LR), 8X advertising packet extension (AE), up to 8 antennas for Indoor Positioning, both Telink proprietary and SIG BLE Mesh, Zigbee, RF4CE, HomeKit, Thread, ANT and 2.4GHz proprietary.
 
 <!-- [![sites](docs/TLSR8253.png)](https://github.com/SoCXin/TLSR8253) -->
 
@@ -17,8 +17,6 @@
 * BLE 5.0
 * SPI + USART + IIC
 * 14bit ADC + PGA
-* RTC
-* 封装(LQFP144/LQFP100/LQFP64/LQFP48)
 
 ### [资源收录](https://github.com/SoCXin)
 

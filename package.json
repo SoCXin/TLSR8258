@@ -7,7 +7,7 @@
     "keywords": [
         "ADC","ECC","AES","MIC","I2S","BLE","PGA",
         "48MHz",
-        "TSSOP16","QFN32",
+        "QFN48","QFN32",
         "3.6V","1.8V"
     ],
     "homepage": "https://www.telink-semi.com/",
