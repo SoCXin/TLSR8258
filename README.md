@@ -1,22 +1,33 @@
-﻿# [Z8350](https://github.com/sochub/Z8350)
-[![sites](http://182.61.61.133//resources/SoC.png)](http://www.qitas.cn) 
+﻿# [TLSR8253](https://github.com/SoCXin/TLSR8253)
 
-#### [Vendor](https://github.com/sochub/Vendor) ：[Intel](https://www.Intel.com)
-#### [x86](https://github.com/sochub/x86) ：Cherry Trail-T" 
-#### [Level](https://github.com/sochub/Level) ：
+[![sites](http://182.61.61.133/link/resources/SoC.png)](http://www.SoC.Xin)
 
-## [芯片描述](https://github.com/sochub/Z8350/wiki) 
+#### [Vendor](https://github.com/SoCXin/Vendor) ：[Telink](https://www.telink-semi.com/)
+#### [Core](https://github.com/SoCXin/Cortex)：[Cortex M0](https://github.com/SoCXin/CM0)
+#### [Level](https://github.com/SoCXin/Level)：48MHz
 
-[Z8350](https://github.com/sochub/Z8350) 是应用于移动设备的 Cherry Trail-T" (14 nm) 
+## [TLSR8253描述](https://github.com/SoCXin/TLSR8253/wiki)
 
-芯片设计 TDP 2.17 W 
+[TLSR8253](https://github.com/SoCXin/TLSR8253)
 
-UTFCBGA592 封装 17 mm × 17 × 1.0 mm
+<!-- [![sites](docs/TLSR8253.png)](https://github.com/SoCXin/TLSR8253) -->
 
-包括 Z8300/Z8330/Z8350三个型号，1.44GHz - 1.92GHz
+##### 关键特性
 
-### [选择建议](https://github.com/sochub)
+* BLE 5.0
+* SPI + USART + IIC
+* 14bit ADC + PGA
+* RTC
+* 封装(LQFP144/LQFP100/LQFP64/LQFP48)
 
-[Z8350](https://github.com/sochub/Z8350)
+### [资源收录](https://github.com/SoCXin)
 
-###  [SoC资源平台](http://www.qitas.cn)   
+* [参考文档](docs/)
+* [工程资源](src/)
+* [参考工程](project/)
+
+### [选型建议](https://github.com/SoCXin)
+
+[TLSR8253](https://github.com/SoCXin/TLSR8253)
+
+###  [SoC.芯](http://www.SoC.Xin)

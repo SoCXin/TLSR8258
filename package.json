@@ -1,0 +1,15 @@
+{
+    "name":"TLSR8253",
+    "Core":"Cortex M0",
+    "Vendor":"Telink",
+    "description":"Cortex M0 TLSR8253 SoC",
+    "url":"https://github.com/SoCXin/TLSR8253",
+    "keywords": [
+        "ADC","ECC","AES","MIC","I2S","BLE","PGA",
+        "48MHz",
+        "TSSOP16","QFN32",
+        "3.6V","1.8V"
+    ],
+    "homepage": "https://www.telink-semi.com/",
+    "version":"1.0.0"
+}
