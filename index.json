@@ -1,11 +1,11 @@
 {
     "type":"SoC",
-    "name":"TLSR8253",
-    "title": "telink TLSR8253 SoC",
+    "name":"TLSR8258",
+    "title": "telink TLSR8258 SoC",
     "description":"telink BLE SoC",
     "Core": {
         "CoreNum": 1,
-        "Core":"RISC-V",
+        "Core":"RISC",
         "Fmax":48,
         "DMIPS": 70,
         "CoreMark": 160
@@ -16,20 +16,20 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/SoCXin/TLSR8253.git"
+        "url": "https://github.com/SoCXin/TLSR8258.git"
     },
     "version":"1.0.0",
-    "series":["TLSR8253","TLSR8251"],
-    "package":["QFN48"],
-    "peripheral": ["ADC","BLE","Audio","SDIO","UART","SPI","IIC"],
+    "series":["TLSR8258","TLSR8253","TLSR8251"],
+    "package":["QFN48","QFN32"],
+    "peripheral": ["ADC","BLE","UART","SPI","IIC"],
     "ESD": {
         "HBM": 2000,
         "CDM": 500
     },
     "keywords": [
-        "RISC-V",
-        "jieli",
-        "BLE","ADC","ECC","AES","MIC","I2S","BLE","PGA",
+        "RISC",
+        "telink",
+        "BLE","ADC","I2C","I2S",
         "3.6V","1.8V"
     ]
 }
