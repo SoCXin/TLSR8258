@@ -373,7 +373,7 @@ extern 	unsigned short 			tick_32k_calib;
 extern  unsigned int 			tick_cur;
 extern  unsigned int 			tick_32k_cur;
 extern  unsigned char       	pm_long_suspend;
-extern  unsigned int 		tick_doublerCal;
+
 void sleep_start(void);
 
 unsigned int cpu_get_32k_tick(void);

@@ -118,20 +118,27 @@ _attribute_data_retention_	my_fifo_t	blt_txfifo = {
 
 
 
-#define     MY_APP_ADV_CHANNEL					BLT_ENABLE_ADV_37
-#define 	MY_ADV_INTERVAL_MIN					ADV_INTERVAL_30MS
-#define 	MY_ADV_INTERVAL_MAX					ADV_INTERVAL_40MS
+#define     	MY_APP_ADV_CHANNEL					BLT_ENABLE_ADV_37
+#define 	   	MY_ADV_INTERVAL_MIN					ADV_INTERVAL_30MS
+#define 	   	MY_ADV_INTERVAL_MAX					ADV_INTERVAL_40MS
 
-#define 	MY_DIRECT_ADV_TMIE					2000000  //us
+#define 	   	MY_DIRECT_ADV_TMIE						2000000  //us
 
-#define		MY_RF_POWER_INDEX					RF_POWER_P3dBm
+#define	 	MY_RF_POWER_INDEX						RF_POWER_P0dBm
 
 #define		BLE_DEVICE_ADDRESS_TYPE 			BLE_DEVICE_ADDRESS_PUBLIC
 
 _attribute_data_retention_	own_addr_type_t 	app_own_address_type = OWN_ADDRESS_PUBLIC;
 
 
-
+_attribute_data_retention_ u8  g_mac_public[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+_attribute_data_retention_ u8  g_ble_name[30] = {0x00};
+_attribute_data_retention_ u8  g_ble_name_len = 0;
+_attribute_data_retention_ u8  g_ble_advData[30] = {0x00};
+_attribute_data_retention_ u8  g_ble_advData_len = 0;
+_attribute_data_retention_ u8  g_ble_scanData[30] = {0x00};
+_attribute_data_retention_ u8  g_ble_scanData_len = 0;
+_attribute_data_retention_ u32 g_ble_pincode = 0;
 
 /**
  * @brief	Adv Packet data
@@ -261,7 +268,7 @@ void show_ota_result(int result)
 #endif
 
 
-#define MAX_INTERVAL_VAL		16
+#define 		MAX_INTERVAL_VAL					16
 
 
 
@@ -336,7 +343,9 @@ void app_power_management ()
 	if(module_uart_data_flg && !module_uart_working){
 		module_uart_data_flg = 0;
 		module_wakeup_module_tick = 0;
-		GPIO_WAKEUP_MCU_LOW;
+		//GPIO_WAKEUP_MCU_LOW;
+		GPIO_WAKEUP_MCU_HIGH;
+        GPIO_WAKEUP_IND_HIGH; // indication module wakeup
 	}
 #endif
 
@@ -366,6 +375,154 @@ void app_power_management ()
 #endif
 }
 
+typedef union {
+ struct{
+  u8 bondingFlag : 2;
+  u8 MITM : 1;
+  u8 SC : 1;
+  u8 keyPress: 1;
+  u8 rsvd: 3;
+ };
+ u8 authType;
+}smp_authReq_t;
+
+typedef union{
+ struct {
+  u8 encKey  : 1;
+  u8 idKey   : 1;
+  u8 sign    : 1;
+  u8 linkKey : 4;
+ };
+ u8 keyIni;
+}smp_keyDistribution_t;
+
+typedef struct{
+ u8 code;      //req = 0x01; rsp = 0x02;
+ u8 ioCapablity;
+ u8 oobDataFlag;
+ smp_authReq_t authReq;
+ u8 maxEncrySize;
+
+ smp_keyDistribution_t initKeyDistribution;
+ smp_keyDistribution_t rspKeyDistribution;
+}smp_paring_req_rsp_t;
+
+typedef struct{
+ u8      paring_tk[16]; // in security connection to keep own random
+ u8      own_ltk[16];   //used for generate ediv and random
+
+ smp_paring_req_rsp_t   paring_req;
+ smp_paring_req_rsp_t   paring_rsp;
+ smp_authReq_t   auth_req;
+ u8      own_conn_type;  //current connection peer own type
+
+ u16      rsvd;
+ u8      own_conn_addr[6];
+ u8                  local_irk[16];
+}smp_param_own_t;
+
+extern smp_param_own_t  smp_param_own;
+
+int  blc_smp_setTK (u32 pinCodeInput)
+{
+    memset(smp_param_own.paring_tk, 0, 16);
+    if(pinCodeInput <= 999999){ //0~999999
+        memcpy(smp_param_own.paring_tk, &pinCodeInput, 4);
+
+        return 1;
+    }
+
+    return 0;
+}
+
+void ble_stack_init(void)
+{
+#if 0
+////////////////// BLE stack initialization ////////////////////////////////////
+    u8  mac_public[6];
+    u8  mac_random_static[6];
+    //for 512K Flash, flash_sector_mac_address equals to 0x76000
+    //for 1M  Flash, flash_sector_mac_address equals to 0xFF000
+	u8 ff_six_byte[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	if ( memcmp(g_mac_public, ff_six_byte, 6) ) 
+    {
+        blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
+        memcpy(mac_public, g_mac_public, 6);
+	}
+	else
+    {
+        blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
+    }
+
+#if(BLE_DEVICE_ADDRESS_TYPE == BLE_DEVICE_ADDRESS_PUBLIC)
+        app_own_address_type = OWN_ADDRESS_PUBLIC;
+#elif(BLE_DEVICE_ADDRESS_TYPE == BLE_DEVICE_ADDRESS_RANDOM_STATIC)
+        app_own_address_type = OWN_ADDRESS_RANDOM;
+        blc_ll_setRandomAddr(mac_random_static);
+#endif
+
+    ////// Controller Initialization  //////////
+    blc_ll_initBasicMCU();                      //mandatory
+    blc_ll_initStandby_module(mac_public);              //mandatory
+    blc_ll_initAdvertising_module(mac_public);  //adv module:        mandatory for BLE slave,
+    blc_ll_initConnection_module();             //connection module  mandatory for BLE slave/master
+    blc_ll_initSlaveRole_module();              //slave module:      mandatory for BLE slave,
+
+
+
+
+    ////// Host Initialization  //////////
+    blc_gap_peripheral_init();    //gap initialization
+    my_att_init (); //gatt initialization
+    blc_l2cap_register_handler (blc_l2cap_packet_receive);      //l2cap initialization
+    blc_l2cap_registerConnUpdateRspCb(app_conn_param_update_response);         //register sig process handler
+
+    //Smp Initialization may involve flash write/erase(when one sector stores too much information,
+    //   is about to exceed the sector threshold, this sector must be erased, and all useful information
+    //   should re_stored) , so it must be done after battery check
+#if (BLE_SECURITY_ENABLE)
+        //defalut smp4.0, just work
+        blc_smp_peripheral_init();
+
+	#if (0) //default close
+            //host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
+            blc_gap_registerHostEventHandler( app_host_event_callback );
+            blc_gap_setEventMask( GAP_EVT_MASK_SMP_PARING_BEAGIN            |  \
+                                  GAP_EVT_MASK_SMP_PARING_SUCCESS           |  \
+                                  GAP_EVT_MASK_SMP_PARING_FAIL              |  \
+                                  GAP_EVT_MASK_SMP_CONN_ENCRYPTION_DONE );
+	#endif
+#else
+        blc_smp_setSecurityLevel(No_Security);
+#endif
+
+
+#endif
+    ///////////////////// USER application initialization ///////////////////
+
+    bls_ll_setAdvData( (u8 *)g_ble_advData, g_ble_advData_len);
+    bls_ll_setScanRspData( (u8 *)g_ble_scanData, g_ble_scanData_len);
+    bls_att_setDeviceName( (u8 *)g_ble_name, g_ble_name_len);
+
+
+
+    ////////////////// config adv packet /////////////////////
+    u8 status = bls_ll_setAdvParam( MY_ADV_INTERVAL_MIN, MY_ADV_INTERVAL_MAX,
+                                 ADV_TYPE_CONNECTABLE_UNDIRECTED, app_own_address_type,
+                                 0,  NULL,
+                                 MY_APP_ADV_CHANNEL,
+                                 ADV_FP_NONE);
+
+    if(status != BLE_SUCCESS) {
+        while(1);
+    }  //debug: adv setting err
+
+
+    bls_ll_setAdvEnable(1);  //adv enable
+    rf_set_power_level_index (MY_RF_POWER_INDEX);
+
+    return;
+}
 
 /**
  * @brief		user initialization when MCU power on or wake_up from deepSleep mode
@@ -424,7 +581,7 @@ void user_init_normal(void)
 	blc_ll_initConnection_module();				//connection module  mandatory for BLE slave/master
 	blc_ll_initSlaveRole_module();				//slave module: 	 mandatory for BLE slave,
 
-
+    memcpy(g_mac_public, mac_public, 6);
 
 
 	////// Host Initialization  //////////
@@ -437,15 +594,26 @@ void user_init_normal(void)
 	//   is about to exceed the sector threshold, this sector must be erased, and all useful information
 	//   should re_stored) , so it must be done after battery check
 	#if (BLE_SECURITY_ENABLE)
+    	blc_smp_param_setBondingDeviceMaxNumber(4);    //if not set, default is : SMP_BONDING_DEVICE_MAX_NUM
+
+    	//set security level: "LE_Security_Mode_1_Level_3"
+    	blc_smp_setSecurityLevel(Authenticated_Paring_with_Encryption);  //if not set, default is : LE_Security_Mode_1_Level_2(Unauthenticated_Paring_with_Encryption)
+    	blc_smp_enableAuthMITM(1);
+    	blc_smp_setBondingMode(Bondable_Mode);	// if not set, default is : Bondable_Mode
+    	blc_smp_setIoCapability(IO_CAPABILITY_DISPLAY_ONLY);	// if not set, default is : IO_CAPABILITY_NO_INPUT_NO_OUTPUT
+
 		//defalut smp4.0, just work
 		blc_smp_peripheral_init();
 
-		#if (0) //default close
+        blc_smp_configSecurityRequestSending(SecReq_IMM_SEND, SecReq_PEND_SEND, 1000); //if not set, default is:  send "security request" immediately after link layer connection established(regardless of new connection or reconnection )
+
+		#if (1) //default close
 			//host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
 			blc_gap_registerHostEventHandler( app_host_event_callback );
 			blc_gap_setEventMask( GAP_EVT_MASK_SMP_PARING_BEAGIN 			|  \
 								  GAP_EVT_MASK_SMP_PARING_SUCCESS   		|  \
 								  GAP_EVT_MASK_SMP_PARING_FAIL				|  \
+								  GAP_EVT_MASK_SMP_TK_DISPALY 				|  \
 								  GAP_EVT_MASK_SMP_CONN_ENCRYPTION_DONE );
 		#endif
 	#else
@@ -453,7 +621,7 @@ void user_init_normal(void)
 	#endif
 
 
-
+#if 0
 	///////////////////// USER application initialization ///////////////////
 
 	bls_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
@@ -468,12 +636,14 @@ void user_init_normal(void)
 								 MY_APP_ADV_CHANNEL,
 								 ADV_FP_NONE);
 
-	if(status != BLE_SUCCESS) {  	while(1); }  //debug: adv setting err
+	if(status != BLE_SUCCESS) {
+		while(1);
+	}  //debug: adv setting err
 
 
 	bls_ll_setAdvEnable(1);  //adv enable
 	rf_set_power_level_index (MY_RF_POWER_INDEX);
-
+#endif
 
 
 
@@ -484,7 +654,8 @@ void user_init_normal(void)
 	u8 *uart_rx_addr = (spp_rx_fifo_b + (spp_rx_fifo.wptr & (spp_rx_fifo.num-1)) * spp_rx_fifo.size);
 	uart_recbuff_init( (unsigned char *)uart_rx_addr, spp_rx_fifo.size);
 
-	uart_gpio_set(UART_TX_PB1, UART_RX_PB0);
+	//uart_gpio_set(UART_TX_PB1, UART_RX_PB0);
+    uart_gpio_set(UART_TX_PD7, UART_RX_PA0);
 
 	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
@@ -555,65 +726,66 @@ void user_init_normal(void)
 
 
 #if (PM_DEEPSLEEP_RETENTION_ENABLE)
-/**
- * @brief		user initialization when MCU wake_up from deepSleep_retention mode
- * @param[in]	none
- * @return      none
- */
-_attribute_ram_code_ void user_init_deepRetn(void)
-{
-	blc_ll_initBasicMCU();   //mandatory
-	rf_set_power_level_index (MY_RF_POWER_INDEX);
+	/**
+	 * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+	 * @param[in]	none
+	 * @return      none
+	 */
+	_attribute_ram_code_ void user_init_deepRetn(void)
+	{
+		blc_ll_initBasicMCU();   //mandatory
+		rf_set_power_level_index (MY_RF_POWER_INDEX);
 
-	blc_ll_recoverDeepRetention();
+		blc_ll_recoverDeepRetention();
 
-	DBG_CHN0_HIGH;    //debug
+		DBG_CHN0_HIGH;    //debug
 
-	irq_enable();
-
-
-	////////////////// SPP initialization ///////////////////////////////////
-	//note: dma addr must be set first before any other uart initialization!
-
-	u8 *uart_rx_addr = (spp_rx_fifo_b + (spp_rx_fifo.wptr & (spp_rx_fifo.num-1)) * spp_rx_fifo.size);
-	uart_recbuff_init( (unsigned char *)uart_rx_addr, spp_rx_fifo.size);
+		irq_enable();
 
 
-	uart_gpio_set(UART_TX_PB1, UART_RX_PB0);
+		////////////////// SPP initialization ///////////////////////////////////
+		//note: dma addr must be set first before any other uart initialization!
 
-	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
-
-
-	DBG_CHN0_LOW;  //debug
-
-	//baud rate: 115200
-	#if (CLOCK_SYS_CLOCK_HZ == 16000000)
-		uart_init(9, 13, PARITY_NONE, STOP_BIT_ONE);
-	#elif (CLOCK_SYS_CLOCK_HZ == 24000000)
-		uart_init(12, 15, PARITY_NONE, STOP_BIT_ONE);
-	#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
-		uart_init(30, 8, PARITY_NONE, STOP_BIT_ONE);
-	#elif (CLOCK_SYS_CLOCK_HZ == 48000000)
-		uart_init(25, 15, PARITY_NONE, STOP_BIT_ONE);
-	#endif
-
-	uart_dma_enable(1, 1); 	//uart data in hardware buffer moved by dma, so we need enable them first
-
-	irq_set_mask(FLD_IRQ_DMA_EN);
-	dma_chn_irq_enable(FLD_DMA_CHN_UART_RX | FLD_DMA_CHN_UART_TX, 1);   	//uart Rx/Tx dma irq enable
-
-	uart_irq_enable(0, 0);  	//uart Rx/Tx irq no need, disable them
-
-	//mcu can wake up module from suspend or deepsleep by pulling up GPIO_WAKEUP_MODULE
-	cpu_set_gpio_wakeup (GPIO_WAKEUP_MODULE, Level_High, 1);  // pad high wakeup deepsleep
-
-	GPIO_WAKEUP_MODULE_LOW;
+		u8 *uart_rx_addr = (spp_rx_fifo_b + (spp_rx_fifo.wptr & (spp_rx_fifo.num-1)) * spp_rx_fifo.size);
+		uart_recbuff_init( (unsigned char *)uart_rx_addr, spp_rx_fifo.size);
 
 
+		//uart_gpio_set(UART_TX_PB1, UART_RX_PB0);
+		uart_gpio_set(UART_TX_PD7, UART_RX_PA0);
+
+		uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
 
-	DBG_CHN0_HIGH;   //debug
-}
+		DBG_CHN0_LOW;  //debug
+
+		//baud rate: 115200
+		#if (CLOCK_SYS_CLOCK_HZ == 16000000)
+			uart_init(9, 13, PARITY_NONE, STOP_BIT_ONE);
+		#elif (CLOCK_SYS_CLOCK_HZ == 24000000)
+			uart_init(12, 15, PARITY_NONE, STOP_BIT_ONE);
+		#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
+			uart_init(30, 8, PARITY_NONE, STOP_BIT_ONE);
+		#elif (CLOCK_SYS_CLOCK_HZ == 48000000)
+			uart_init(25, 15, PARITY_NONE, STOP_BIT_ONE);
+		#endif
+
+		uart_dma_enable(1, 1); 	//uart data in hardware buffer moved by dma, so we need enable them first
+
+		irq_set_mask(FLD_IRQ_DMA_EN);
+		dma_chn_irq_enable(FLD_DMA_CHN_UART_RX | FLD_DMA_CHN_UART_TX, 1);   	//uart Rx/Tx dma irq enable
+
+		uart_irq_enable(0, 0);  	//uart Rx/Tx irq no need, disable them
+
+		//mcu can wake up module from suspend or deepsleep by pulling up GPIO_WAKEUP_MODULE
+		cpu_set_gpio_wakeup (GPIO_WAKEUP_MODULE, Level_High, 1);  // pad high wakeup deepsleep
+
+		GPIO_WAKEUP_MODULE_LOW;
+
+
+
+
+		DBG_CHN0_HIGH;   //debug
+	}
 #endif
 
 /**

@@ -536,6 +536,7 @@ _attribute_ram_code_ void task_audio (void)
 					mic_encoder_data_read_ok();
 				}
 			}
+
 		}
 	}
 }

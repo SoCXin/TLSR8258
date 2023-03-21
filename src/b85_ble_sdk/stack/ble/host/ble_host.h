@@ -59,6 +59,9 @@
 #include "stack/ble/host/smp/smp.h"
 #include "stack/ble/host/smp/smp_alg.h"
 #include "stack/ble/host/smp/smp_peripheral.h"
+#if (MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
+#include "stack/ble/host/smp/smp_central.h"
+#endif
 #include "stack/ble/host/smp/smp_storage.h"
 
 
@@ -67,9 +70,5 @@
 
 
 
-
-#if (MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
-#include "stack/ble/host/smp/smp_central.h"
-#endif
 
 #endif /* STACK_BLE_HOST_BLE_HOST_H_ */

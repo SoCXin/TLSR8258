@@ -50,6 +50,15 @@
 #include "app_att.h"
 #include "spp.h"
 
+extern _attribute_data_retention_ u8  g_mac_public[];
+extern _attribute_data_retention_ u8  g_ble_name[];
+extern _attribute_data_retention_ u8 g_ble_name_len;
+extern _attribute_data_retention_ u8  g_ble_advData[];
+extern _attribute_data_retention_ u8  g_ble_advData_len;
+extern _attribute_data_retention_ u8  g_ble_scanData[];
+extern _attribute_data_retention_ u8  g_ble_scanData_len;
+extern _attribute_data_retention_ u32 g_ble_pincode;
+u32 g_module_wakeup_mcu_delay_ticks = 0;
 
 extern int	module_uart_data_flg;
 extern u32 module_wakeup_module_tick;
@@ -128,7 +137,7 @@ int controller_event_handler(u32 h, u8 *para, int n)
 
 			case BLT_EV_FLAG_CHN_MAP_UPDATE:
 			{
-				spp_send_data(HCI_FLAG_EVENT_TLK_MODULE, pEvt);
+				//spp_send_data(HCI_FLAG_EVENT_TLK_MODULE, pEvt);
 			}
 			break;
 
@@ -140,8 +149,9 @@ int controller_event_handler(u32 h, u8 *para, int n)
 				//Master send SIG_Connection_Param_Update_Rsp pkt,and the reply result is 0x0000. When connection event counter value is equal
 				//to the instant, a callback event BLT_EV_FLAG_CONN_PARA_UPDATE will generate. The connection interval at this time should be the
 				//currently updated and valid connection interval!
-//				printf("Update param event occur.\n");
-//				printf("Current Connection interval:%dus.\n", bls_ll_getConnectionInterval() * 1250);
+
+				//printf("Update param event occur.\n");
+				//	printf("Current Connection interval:%dus.\n", bls_ll_getConnectionInterval() * 1250);
 			}
 			break;
 
@@ -191,17 +201,15 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 			gap_smp_paringSuccessEvt_t* p = (gap_smp_paringSuccessEvt_t*)para;
 
 			if(p->bonding_result){
-
 			}
 			else{
-
 			}
 		}
 		break;
 
 		case GAP_EVT_SMP_PAIRING_FAIL:
 		{
-//			gap_smp_paringFailEvt_t* p = (gap_smp_paringFailEvt_t*)para;
+			//gap_smp_paringFailEvt_t* p = (gap_smp_paringFailEvt_t*)para;
 		}
 		break;
 
@@ -220,8 +228,13 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 		case GAP_EVT_SMP_TK_DISPALY:
 		{
-//			char pc[7];
-//			u32 pinCode = *(u32*)para;
+			char pc[7];
+			u32 pinCode = *(u32*)para;
+			sprintf(pc, "%d", pinCode);
+			//printf("TK display:%s\n", pc);
+
+			pinCode = g_ble_pincode;
+            blc_smp_setTK(pinCode);
 		}
 		break;
 
@@ -239,8 +252,8 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 		case GAP_EVT_SMP_TK_NUMERIC_COMPARE:
 		{
-//			char pc[7];
-//			u32 pinCode = *(u32*)para;
+			//	char pc[7];
+			//	u32 pinCode = *(u32*)para;
 		}
 		break;
 
@@ -309,7 +322,122 @@ int bls_uart_handler (u8 *p, int n)
 	// set advertising data: 02 ff 06 00 01 02 03 04 05 06
 	else if (spp_cmd == SPP_CMD_SET_ADV_DATA)
 	{
-		pEvt->param[0] = (u8)bls_ll_setAdvData(cmdPara, pCmd->paramLen);
+		//pEvt->param[0] = (u8)bls_ll_setAdvData(cmdPara, pCmd->paramLen);
+		memset(g_ble_name, 0, 30);
+        memcpy(g_ble_name, cmdPara, pCmd->paramLen);
+        g_ble_name_len = p[2];
+        pEvt->param[0] = bls_att_setDeviceName(cmdPara,p[2]);
+
+        memset(g_ble_advData, 0, 30);
+        g_ble_advData[0] = p[2] + 1;
+        g_ble_advData[1] = 0x09;
+        memcpy(&g_ble_advData[2], cmdPara, p[2]);
+        g_ble_advData[2+p[2]] = 0x02;
+        g_ble_advData[2+p[2]+1] = 0x01;
+        g_ble_advData[2+p[2]+2] = 0x05;
+
+        g_ble_advData_len = p[2] + 5;
+        pEvt->param[0] = (u8)bls_ll_setAdvData(g_ble_advData, g_ble_advData_len);
+
+        memset(g_ble_scanData, 0, 30);
+        g_ble_scanData[0] = p[2] + 1;
+        g_ble_scanData[1] = 0x09;
+        memcpy(&g_ble_scanData[2], cmdPara, p[2]);
+
+        g_ble_scanData_len = p[2] + 2;
+        pEvt->param[0] = (u8)bls_ll_setScanRspData(g_ble_scanData, g_ble_scanData_len);
+	}
+	// set ble power: 03 ff 01 00 01
+	else if (spp_cmd == SPP_CMD_SET_BLE_PWR)
+	{
+        if(cmdPara[0])
+        {
+            ble_stack_init();
+        }
+        else
+        {
+            //spp_cmd_restart_flag = clock_time() | 1;
+            bls_ll_setAdvEnable(0);
+        }
+	}
+	// set mac addr: 04 ff 06 00 01 02 03 04 05 06
+	else if (spp_cmd == SPP_CMD_SET_MAC_ADDR)
+	{
+		//blc_set_MacAddress(cmdPara);
+		memcpy(g_mac_public, cmdPara, pCmd->paramLen);
+	}
+	// set adv duration: 05 ff 12 00 01 50 00 60 00 50 00 00 00 00 01 02 03 38 C1 A4 07 00
+	else if (spp_cmd == SPP_CMD_SET_ADV_PARAM)
+	{
+	    u8 index = 0;
+        u8 mode = 0;
+        u16 advIntervalMin = 0;
+        u16 advIntervalMax = 0;
+        u16 duration = 0;
+        u8 advType = 0;
+        u8 ownAddrType = 0;
+        u8 peerAddrType = 0;
+        u8 peerAddr[20] = {0};
+        u8 advChannelMap = 0;
+        u8 advFilterPolicy = 0;
+
+        mode = cmdPara[index++];
+
+        if(mode)
+        {
+            advIntervalMin = (cmdPara[index] | (cmdPara[index+1] << 8));
+            index = index + 2;
+            advIntervalMax = (cmdPara[index] | (cmdPara[index+1] << 8));
+            index = index + 2;
+            duration = (cmdPara[index] | (cmdPara[index+1] << 8));
+            index = index + 2;
+            advType = cmdPara[index++];
+            ownAddrType = cmdPara[index++];
+            peerAddrType = cmdPara[index++];
+            memset(peerAddr, 0, 20);
+            memcpy(peerAddr, &cmdPara[index], 6);
+            index = index + 6;
+            advChannelMap = cmdPara[index++];
+            advFilterPolicy = cmdPara[index];
+
+            if(advType != ADV_TYPE_CONNECTABLE_DIRECTED_HIGH_DUTY && advType != ADV_TYPE_CONNECTABLE_DIRECTED_LOW_DUTY)
+            {
+                bls_ll_setAdvParam(advIntervalMin, advIntervalMax, advType, ownAddrType,
+                    0, NULL, advChannelMap, advFilterPolicy);
+            }
+            else
+            {
+                bls_ll_setAdvParam(advIntervalMin, advIntervalMax, advType, ownAddrType,
+                    peerAddrType, peerAddr, advChannelMap, advFilterPolicy);
+            }
+
+            if(duration > 0)
+            {
+    		    bls_ll_setAdvDuration(duration * 1000, 1);
+            }
+            else
+            {
+                bls_ll_setAdvDuration(duration * 1000, 0);
+            }
+        }
+
+        bls_ll_setAdvEnable(mode);
+	}
+	// get mac addr: 06 ff 06 00 01 02 03 04 05 06
+	else if (spp_cmd == SPP_CMD_GET_MAC_ADDR)
+	{
+        pEvt->param[1] = g_mac_public[5];
+        pEvt->param[2] = g_mac_public[4];
+        pEvt->param[3] = g_mac_public[3];
+        pEvt->param[4] = g_mac_public[2];
+        pEvt->param[5] = g_mac_public[1];
+        pEvt->param[6] = g_mac_public[0];
+        pEvt->paramLen = 9;
+	}
+	// set ble pincode: 07 ff 03 00 40 E2 01
+	else if (spp_cmd == SPP_CMD_SET_BLE_PINCODE)
+	{
+        g_ble_pincode = (cmdPara[0] | cmdPara[1] << 8 | cmdPara[2] << 16);
 	}
 	// enable/disable advertising: 0a ff 01 00  01
 	else if (spp_cmd == SPP_CMD_SET_ADV_ENABLE)
@@ -468,10 +596,20 @@ int spp_send_data (u32 header, spp_event_t * pEvt)
 	}
 
 #if (BLE_MODULE_INDICATE_DATA_TO_MCU)
-	if(!module_uart_data_flg){ //UART idle, new data is sent
-		GPIO_WAKEUP_MCU_HIGH;  //Notify MCU that there is data here
+	if(!module_uart_data_flg && pEvt->eventId != 0x078C){ //UART idle, new data is sent
+		//GPIO_WAKEUP_MCU_HIGH;  //Notify MCU that there is data here
+		GPIO_WAKEUP_MCU_LOW;
 		module_wakeup_module_tick = clock_time() | 1;
 		module_uart_data_flg = 1;
+
+        if(pEvt->eventId >= 0x0701 && pEvt->eventId <= 0x071c)
+        {
+            g_module_wakeup_mcu_delay_ticks = 100; //unit us
+        }
+        else
+        {
+            g_module_wakeup_mcu_delay_ticks = 500000; // uint us
+        }
 	}
 #endif
 
@@ -522,7 +660,7 @@ int tx_to_uart_cb (void)
 		//reply time T from wakeup to a stable receive UART data. If you need a response time of T, ch-
 		//ange the following 100US to the actual time required by user.
 		if(module_wakeup_module_tick){
-			while( !clock_time_exceed(module_wakeup_module_tick, 100) );
+			while( !clock_time_exceed(module_wakeup_module_tick, g_module_wakeup_mcu_delay_ticks) ); // 100=100us
 		}
 #endif
 

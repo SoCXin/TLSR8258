@@ -73,6 +73,7 @@
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
 #define DEBUG_GPIO_ENABLE								0
+#define	DEBUG_TERMINATE_CNT_EN							0
 
 
 

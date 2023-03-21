@@ -157,3 +157,7 @@ void blc_initMacAddress(int flash_addr, u8 *mac_public, u8 *mac_random_static)
 	}
 }
 
+void blc_set_MacAddress(u8 *mac_public)
+{
+    flash_write_page(flash_sector_mac_address, 6, mac_public);
+}

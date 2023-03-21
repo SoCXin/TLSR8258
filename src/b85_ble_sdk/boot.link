@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	boot.link
+ * @file	boot_32k_retn_8253_8258.link
  *
  * @brief	This is the link file for BLE SDK
  *
@@ -70,7 +70,7 @@ SECTIONS
 	PROVIDE(_ramcode_size_div_16_align_256_ = ( (. + 255) / 256) * 16);
 	PROVIDE(_ramcode_size_align_256_ = ( _ramcode_size_div_16_align_256_)* 16);
 
-    . = 0x4000; 	
+    . = 0x8000; 	
         .text :
         {
         *(.text)
@@ -98,7 +98,7 @@ SECTIONS
         }        
           
 
-	. = 0x844900;
+	. = 0x848900;
         .data :
           AT ( _dstored_ )
          {
@@ -119,7 +119,7 @@ SECTIONS
         *(.bss)
         *(.bss.*)
         }
-    PROVIDE(_end_bss_ = .); 
+    PROVIDE(_end_bss_ = .);
 
     /* data in ram but no need to clean in .s*/
         .data_no_init (NOLOAD) :

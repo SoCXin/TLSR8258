@@ -56,6 +56,9 @@
 #include "blm_host.h"
 #include "blm_ota.h"
 
+#if (BLE_HOST_SIMPLE_SDP_ENABLE)
+extern u8 	conn_char_handler[];
+#endif
 
 #if (UI_BUTTON_ENABLE)
 
@@ -180,6 +183,18 @@
 
 			if(vc_event.cnt == 2)  //two key press
 			{
+                u8 dat[32]={0};
+                u8 * data = "Warning";
+
+                #if (BLE_HOST_SIMPLE_SDP_ENABLE)
+                att_req_write_cmd(dat, 0x15, data, strlen(data));
+                #else
+                att_req_write_cmd(dat, 25, data, strlen(data));
+                #endif
+                
+                if(blm_push_fifo(BLM_CONN_HANDLE, dat)){
+                
+                }
 
 			}
 			else if(vc_event.cnt == 1) //one key press
@@ -229,7 +244,6 @@
 				if(dongle_unpair_enable){
 					dongle_unpair_enable = 0;
 				}
-
 
 				#if (BLE_MASTER_OTA_ENABLE)  //ota cmd trigger
 					extern void host_button_trigger_ota_start(int , int );

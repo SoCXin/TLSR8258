@@ -85,8 +85,7 @@
 
 #define	TEST_OTA_BIG_PDU								70
 
-#define TEST_LL_PRIVACY_SLAVE                           80
-#define	TEST_LL_PRIVACY_MASTER							81
+#define TEST_LL_PRIVACY                                 80
 
 #define	TEST_OTA_HID									90
 
@@ -101,7 +100,7 @@
 
 
 
-#define FEATURE_TEST_MODE								TEST_LL_PRIVACY_MASTER
+#define FEATURE_TEST_MODE								TEST_SMP_SECURITY
 
 
 

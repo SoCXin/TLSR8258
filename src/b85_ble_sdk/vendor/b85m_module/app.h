@@ -47,6 +47,8 @@
 #define APP_H_
 
 
+void ble_stack_init(void);
+int  blc_smp_setTK (u32 pinCodeInput);
 
 
 /**

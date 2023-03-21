@@ -57,6 +57,14 @@
 #define SPP_CMD_SET_ADV_INTV								0xFF01
 #define SPP_CMD_SET_ADV_DATA								0xFF02
 
+/*eigencomm add code begin*/
+#define SPP_CMD_SET_BLE_PWR								0xFF03
+#define SPP_CMD_SET_MAC_ADDR							0xFF04
+#define SPP_CMD_SET_ADV_PARAM						    0xFF05
+#define SPP_CMD_GET_MAC_ADDR						    0xFF06
+#define SPP_CMD_SET_BLE_PINCODE						    0xFF07
+/*eigencomm add code end*/
+
 #define SPP_CMD_SET_ADV_ENABLE                             	0xFF0A
 #define SPP_CMD_GET_BUF_SIZE								0xFF0C
 #define SPP_CMD_SET_ADV_TYPE								0xFF0D

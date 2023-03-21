@@ -13,6 +13,7 @@ Debug
 Change*
 CHANGE*
 *.zip
+*.7z
 # README*
 # COPY*
 # *CONTRIBU*
@@ -30,15 +31,16 @@ CHANGE*
 *.hex
 *.bin
 *bak
-# *.txt
+*.mk
 *.lst
 *.sct
 *.elf
-# *.ini
+*.o
 *.gbr
 *.drl
 *.ods
 *.odg
-# *.csv
+*.tbl
 *.xml
-# *.pdf
+makefile
+proj/

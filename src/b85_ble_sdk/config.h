@@ -43,8 +43,6 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
-
 #pragma once
 
 
@@ -64,10 +62,7 @@
 
 #define	MCU_CORE_9518 		5
 
-
-#if(CHIP_TYPE == CHIP_TYPE_9518)
-	#define MCU_CORE_TYPE	MCU_CORE_9518
-#elif(CHIP_TYPE == CHIP_TYPE_825x)
+#if(CHIP_TYPE == CHIP_TYPE_825x)
 	#define MCU_CORE_TYPE	MCU_CORE_825x
 #elif(CHIP_TYPE == CHIP_TYPE_827x)
 	#define MCU_CORE_TYPE	MCU_CORE_827x

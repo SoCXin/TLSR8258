@@ -49,8 +49,7 @@
 
 
 
-#define	FLOW_NO_OS						1
-#define	MASTER_RESOLVABLE_ADD_EN		0
+#define	FLOW_NO_OS				1
 
 
 
@@ -61,7 +60,7 @@
 
 
 /////////////////// MODULE /////////////////////////////////
-#define BLE_HOST_SMP_ENABLE							1  //1 for standard security management,  0 for telink referenced paring&bonding(no security)
+#define BLE_HOST_SMP_ENABLE							0  //1 for standard security management,  0 for telink referenced paring&bonding(no security)
 #define BLE_HOST_SIMPLE_SDP_ENABLE					1  //simple service discovery
 
 

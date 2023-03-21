@@ -202,6 +202,7 @@ void blc_readFlashSize_autoConfigCustomFlashSector(void);
 void blc_initMacAddress(int flash_addr, u8 *mac_public, u8 *mac_random_static);
 
 
+void blc_set_MacAddress(u8 *mac_public);
 
 
 #endif /* BLT_COMMON_H_ */

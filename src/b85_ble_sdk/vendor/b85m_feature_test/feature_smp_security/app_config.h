@@ -50,7 +50,7 @@
 #if (FEATURE_TEST_MODE == TEST_SMP_SECURITY)
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
-#define FEATURE_PM_ENABLE								1
+#define FEATURE_PM_ENABLE								0
 #define FEATURE_DEEPSLEEP_RETENTION_ENABLE				0
 
 #define APP_DEFAULT_HID_BATTERY_OTA_ATTRIBUTE_TABLE		1
@@ -67,7 +67,7 @@
 #define 	SMP_TEST_LEGACY_PASSKEY_ENTRY_SDMI	4 //PK_Resp_Dsply_Init_Input
 #define 	SMP_TEST_LEGACY_PASSKEY_ENTRY_MDSI	5 //PK_Init_Dsply_Resp_Input
 #define 	SMP_TEST_LEGACY_PASSKEY_ENTRY_MISI	6 //PK_BOTH_INPUT, not test
-#define 	SMP_TEST_LEGACY_PASSKEY_ENTRY_OOB	7 //OOB_Authentication
+#define 	SMP_TEST_LEGACY_PASSKEY_ENTRY_OOB	7 //OOB_Authentication, not test
 
 // LE_Security_Mode_1_Level_4, authenticated paring with encryption
 #define 	SMP_TEST_SC_NUMERIC_COMPARISON		8 //Numric_Comparison
@@ -79,7 +79,7 @@
 
 
 
-#define     SMP_TEST_MODE						SMP_TEST_LEGACY_PAIRING_JUST_WORKS
+#define     SMP_TEST_MODE						SMP_TEST_LEGACY_PASSKEY_ENTRY_SDMI//SMP_TEST_LEGACY_PAIRING_JUST_WORKS
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 /*
@@ -307,7 +307,7 @@ enum{
 /////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
 #if (UART_PRINT_DEBUG_ENABLE)
 		//the baud rate should not bigger than 1M(system timer clock is constant 16M)
-		#define PRINT_BAUD_RATE             					1000000
+		#define PRINT_BAUD_RATE             					115200
 		#define DEBUG_INFO_TX_PIN           					GPIO_PB1
 		#define PULL_WAKEUP_SRC_PB1         					PM_PIN_PULLUP_10K
 		#define PB1_OUTPUT_ENABLE         						1
