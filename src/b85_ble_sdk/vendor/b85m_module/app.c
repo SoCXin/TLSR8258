@@ -310,6 +310,7 @@ void app_suspend_exit ()
 	GPIO_WAKEUP_MODULE_HIGH;  //module enter working state
 	bls_pm_setSuspendMask(SUSPEND_DISABLE);
 	tick_wakeup = clock_time () | 1;
+	// printf("app_suspend_exit\n");
 }
 
 /**
@@ -320,6 +321,7 @@ void app_suspend_exit ()
  */
 int app_suspend_enter ()
 {
+	// printf("app_suspend_enter\n");
 	if (app_module_busy ())
 	{
 		app_suspend_exit ();
@@ -535,7 +537,6 @@ void user_init_normal(void)
 	//random number generator must be initiated here( in the beginning of user_init_nromal)
 	//when deepSleep retention wakeUp, no need initialize again
 	random_generator_init();  //this is must
-
 
 	/*****************************************************************************************
 	 Note: battery check must do before any flash write/erase operation, cause flash write/erase
@@ -814,8 +815,8 @@ void main_loop (void)
 
 
 	//  add spp UI task
-	app_power_management ();
+	// app_power_management ();
 
 
-	spp_restart_proc();
+	// spp_restart_proc();
 }

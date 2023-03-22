@@ -115,14 +115,15 @@ _attribute_ram_code_ int main (void)    //must run in ramcode
 	}
 
 	blc_app_loadCustomizedParameters();  //load customized freq_offset cap value
-
-
+	#if (PM_DEEPSLEEP_RETENTION_ENABLE)
 	if( deepRetWakeUp ){
 		user_init_deepRetn ();
 	}
-	else{
+	else
+	#endif
+	{
 		#if FIRMWARES_SIGNATURE_ENABLE
-			blt_firmware_signature_check();
+		blt_firmware_signature_check();
 		#endif
 		user_init_normal ();
 	}
