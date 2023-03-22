@@ -60,17 +60,17 @@
 
 
 //you can change IO here
-#define  GPIO_LED1_PIN				GPIO_PA0
-#define  GPIO_LED2_PIN				GPIO_PA1
-#define  GPIO_LED3_PIN				GPIO_PA2
+#define  GPIO_LED1_PIN				GPIO_PD1
+#define  GPIO_LED2_PIN				GPIO_PD2
+#define  GPIO_LED3_PIN				GPIO_PD3
 
 
 #define  LED_INIT_LEVEL				0
 
 
-#define GPIO_TEST_PIN1				GPIO_PD0
-#define GPIO_TEST_PIN2				GPIO_PD1
-#define GPIO_TEST_PIN3				GPIO_PD2
+#define GPIO_TEST_PIN1				GPIO_PB2
+#define GPIO_TEST_PIN2				GPIO_PB3
+#define GPIO_TEST_PIN3				GPIO_PB4
 
 
 unsigned char gpio_irq_test_mode = 0;

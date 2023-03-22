@@ -57,7 +57,7 @@
 #define BOARD_825X_DONGLE_C1T139A3						2     //
 #define BOARD_827X_EVK_C1T197A30						3	  //TLSR8278DK48
 #define BOARD_827X_DONGLE_C1T201A3						4	  //
-
+#define UART_PRINT_DEBUG_ENABLE							1
 
 
 #if (__PROJECT_8258_BLE_SAMPLE__)
@@ -244,7 +244,7 @@
 
 
 ///////////////////////// System Clock  Configuration /////////////////////////////////////////
-#define CLOCK_SYS_CLOCK_HZ  								16000000
+#define CLOCK_SYS_CLOCK_HZ  								24000000
 
 #if (CLOCK_SYS_CLOCK_HZ == 16000000)
 	#define SYS_CLK_TYPE  									SYS_CLK_16M_Crystal
@@ -316,7 +316,16 @@ enum{
 
 
 
-
+/////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
+#if (UART_PRINT_DEBUG_ENABLE)
+		//the baud rate should not bigger than 1M(system timer clock is constant 16M)
+		#define PRINT_BAUD_RATE             					1000000
+		#define DEBUG_INFO_TX_PIN           					GPIO_PB1
+		#define PULL_WAKEUP_SRC_PB1         					PM_PIN_PULLUP_10K
+		#define PB1_OUTPUT_ENABLE         						1
+        #define PB1_DATA_OUT                                    1 //must
+	    #include "application/print/u_printf.h"
+#endif
 
 
 

@@ -186,7 +186,7 @@
 
 
 ///////////////////////// System Clock  Configuration /////////////////////////////////////////
-#define CLOCK_SYS_CLOCK_HZ  								16000000
+#define CLOCK_SYS_CLOCK_HZ  								24000000
 
 #if (CLOCK_SYS_CLOCK_HZ == 16000000)
 	#define SYS_CLK_TYPE  									SYS_CLK_16M_Crystal
@@ -242,8 +242,17 @@ typedef struct{
 
 
 
-
-
+#define UART_PRINT_DEBUG_ENABLE							1
+/////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
+#if (UART_PRINT_DEBUG_ENABLE)
+		//the baud rate should not bigger than 1M(system timer clock is constant 16M)
+		#define PRINT_BAUD_RATE             					1000000
+		#define DEBUG_INFO_TX_PIN           					GPIO_PB3
+		#define PULL_WAKEUP_SRC_PB1         					PM_PIN_PULLUP_10K
+		#define PB1_OUTPUT_ENABLE         						1
+        #define PB1_DATA_OUT                                    1 //must
+	    #include "application/print/u_printf.h"
+#endif
 
 
 

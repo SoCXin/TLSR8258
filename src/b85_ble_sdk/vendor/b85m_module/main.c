@@ -132,7 +132,7 @@ _attribute_ram_code_ int main (void)    //must run in ramcode
 
 
 
-
+	printf("test printf\n");
 	while (1) {
 #if (MODULE_WATCHDOG_ENABLE)
 		wd_clear(); //clear watch dog
