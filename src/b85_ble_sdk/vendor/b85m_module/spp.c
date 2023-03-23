@@ -98,7 +98,6 @@ int controller_event_handler(u32 h, u8 *para, int n)
 		switch(event)
 		{
 			case BLT_EV_FLAG_SCAN_RSP:
-			// printf("SCAN.\n");
 			break;
 
 
@@ -107,7 +106,6 @@ int controller_event_handler(u32 h, u8 *para, int n)
 				bls_l2cap_requestConnParamUpdate (CONN_INTERVAL_10MS, CONN_INTERVAL_15MS, 99, CONN_TIMEOUT_4S);
 
 				spp_send_data(HCI_FLAG_EVENT_TLK_MODULE, pEvt);
-				printf("CONNECT.\n");
 			}
 			break;
 
@@ -130,7 +128,7 @@ int controller_event_handler(u32 h, u8 *para, int n)
 				//Slave received Master's LL_Connect_Update_Req pkt.
 				rf_packet_ll_updateConnPara_t p;
 				memcpy((u8*)&p.winSize, para, 11);
-				printf("para-%d,%d,%d,%d,%d,%d\n",para[0],para[1],para[2],para[3],para[4],para[5]);
+
 //				printf("Receive Master's LL_Connect_Update_Req pkt.\n");
 //				printf("Connection interval:%dus.\n", p.interval*1250);
 			}
@@ -139,7 +137,7 @@ int controller_event_handler(u32 h, u8 *para, int n)
 
 			case BLT_EV_FLAG_CHN_MAP_UPDATE:
 			{
-				spp_send_data(HCI_FLAG_EVENT_TLK_MODULE, pEvt);
+				//spp_send_data(HCI_FLAG_EVENT_TLK_MODULE, pEvt);
 			}
 			break;
 
@@ -153,7 +151,7 @@ int controller_event_handler(u32 h, u8 *para, int n)
 				//currently updated and valid connection interval!
 
 				//printf("Update param event occur.\n");
-				// printf("Current Connection interval:%dus.\n", bls_ll_getConnectionInterval() * 1250);
+				//	printf("Current Connection interval:%dus.\n", bls_ll_getConnectionInterval() * 1250);
 			}
 			break;
 
@@ -313,6 +311,8 @@ int bls_uart_handler (u8 *p, int n)
 	pEvt->eventId = ((spp_cmd & 0x3ff) | 0x400);
 	pEvt->param[0] = BLE_SUCCESS;  //default all success, will change in specific cmd process
 
+
+
 	// set advertising interval: 01 ff 02 00 50 00: 80 *0.625ms
 	if (spp_cmd == SPP_CMD_SET_ADV_INTV)
 	{
@@ -322,7 +322,6 @@ int bls_uart_handler (u8 *p, int n)
 	// set advertising data: 02 ff 06 00 01 02 03 04 05 06
 	else if (spp_cmd == SPP_CMD_SET_ADV_DATA)
 	{
-		// printf("SPP_CMD_SET_ADV_DATA\n");
 		//pEvt->param[0] = (u8)bls_ll_setAdvData(cmdPara, pCmd->paramLen);
 		memset(g_ble_name, 0, 30);
         memcpy(g_ble_name, cmdPara, pCmd->paramLen);
@@ -354,21 +353,18 @@ int bls_uart_handler (u8 *p, int n)
         if(cmdPara[0])
         {
             ble_stack_init();
-			// printf("ble init\n");
         }
         else
         {
             //spp_cmd_restart_flag = clock_time() | 1;
             bls_ll_setAdvEnable(0);
-			// printf("ble close\n");
         }
 	}
 	// set mac addr: 04 ff 06 00 01 02 03 04 05 06
 	else if (spp_cmd == SPP_CMD_SET_MAC_ADDR)
 	{
-		blc_set_MacAddress(cmdPara);
+		//blc_set_MacAddress(cmdPara);
 		memcpy(g_mac_public, cmdPara, pCmd->paramLen);
-		// printf("MAC-%d,%d,%d,%d,%d,%d\n",cmdPara[0],cmdPara[1],cmdPara[2],cmdPara[3],cmdPara[4],cmdPara[5]);
 	}
 	// set adv duration: 05 ff 12 00 01 50 00 60 00 50 00 00 00 00 01 02 03 38 C1 A4 07 00
 	else if (spp_cmd == SPP_CMD_SET_ADV_PARAM)
@@ -575,7 +571,6 @@ int bls_uart_handler (u8 *p, int n)
 		else
 		{
 			pEvt->param[0] = blc_gatt_pushHandleValueNotify (BLS_CONN_HANDLE, cmdPara[0] | (cmdPara[1]<<8), cmdPara + 2,  pCmd->paramLen - 2);
-			printf("NOTIFY:%d\n", pCmd->paramLen);
 		}
 	}
 
@@ -606,7 +601,7 @@ int spp_send_data (u32 header, spp_event_t * pEvt)
 		GPIO_WAKEUP_MCU_LOW;
 		module_wakeup_module_tick = clock_time() | 1;
 		module_uart_data_flg = 1;
-		
+
         if(pEvt->eventId >= 0x0701 && pEvt->eventId <= 0x071c)
         {
             g_module_wakeup_mcu_delay_ticks = 100; //unit us
@@ -640,7 +635,6 @@ int spp_send_data (u32 header, spp_event_t * pEvt)
 	}
 
 	my_fifo_next (&spp_tx_fifo);
-	printf("%d,%d\n",pEvt->eventId,pEvt->paramLen);
 	return 0;
 }
 

@@ -48,8 +48,8 @@
 
 
 /////////////////// MODULE /////////////////////////////////
-#define BLE_MODULE_PM_ENABLE				0
-#define PM_DEEPSLEEP_RETENTION_ENABLE		0
+#define BLE_MODULE_PM_ENABLE				1
+#define PM_DEEPSLEEP_RETENTION_ENABLE		1
 
 #define BLE_OTA_ENABLE						1
 #define TELIK_SPP_SERVICE_ENABLE			1
@@ -75,6 +75,9 @@
 #if (__PROJECT_8258_MODULE__)
 	/* can only choose BOARD_825X_EVK_C1T139A30*/
 	#define BOARD_SELECT							BOARD_825X_EVK_C1T139A30
+#elif (__PROJECT_8278_MODULE__)
+	/* can only choose BOARD_827X_EVK_C1T197A30*/
+	#define BOARD_SELECT							BOARD_827X_EVK_C1T197A30
 #endif
 
 /**
@@ -100,8 +103,8 @@
 #if (BLT_APP_LED_ENABLE)
 	#if(BOARD_SELECT == BOARD_825X_EVK_C1T139A30 || BOARD_SELECT == BOARD_827X_EVK_C1T197A30)
 		#define LED_ON_LEVAL 					1 			//gpio output high voltage to turn on led
-		#define	GPIO_LED						GPIO_PD2    //red
-		#define PD2_FUNC						AS_GPIO
+		#define	GPIO_LED						GPIO_PD5    //red
+		#define PD5_FUNC						AS_GPIO
 	#endif
 #endif
 
@@ -119,10 +122,10 @@
 	#define GPIO_WAKEUP_MODULE_LOW				gpio_setup_up_down_resistor(GPIO_WAKEUP_MODULE, PM_PIN_PULLDOWN_100K);
 #else
     #define GPIO_WAKEUP_MODULE                  GPIO_PB2   //mcu wakeup module
-    #define PB1_FUNC                            AS_GPIO
-    #define PB1_INPUT_ENABLE                    1
-    #define PB1_OUTPUT_ENABLE                   0
-    #define PB1_DATA_OUT                        0
+    #define PB2_FUNC                            AS_GPIO
+    #define PB2_INPUT_ENABLE                    1
+    #define PB2_OUTPUT_ENABLE                   0
+    #define PB2_DATA_OUT                        0
     #define GPIO_WAKEUP_MODULE_HIGH             gpio_setup_up_down_resistor(GPIO_WAKEUP_MODULE, PM_PIN_PULLUP_10K);
     #define GPIO_WAKEUP_MODULE_LOW              gpio_setup_up_down_resistor(GPIO_WAKEUP_MODULE, PM_PIN_PULLDOWN_100K);
 #endif
@@ -137,34 +140,53 @@
 	#define GPIO_WAKEUP_MCU_LOW					do{gpio_set_output_en(GPIO_WAKEUP_MCU, 1); gpio_write(GPIO_WAKEUP_MCU, 0);}while(0)
 	#define GPIO_WAKEUP_MCU_FLOAT				do{gpio_set_output_en(GPIO_WAKEUP_MCU, 0); gpio_write(GPIO_WAKEUP_MCU, 0);}while(0)
 #else
-    #define GPIO_WAKEUP_MCU                     GPIO_PD1   //module wakeup mcu
-    #define PD1_FUNC                            AS_GPIO
-    #define PD1_INPUT_ENABLE                    1
-    #define PD1_OUTPUT_ENABLE                   1
-    #define PD1_DATA_OUT                        1
-    #define PULL_WAKEUP_SRC_PD1                 PM_PIN_PULLUP_10K
+    #define GPIO_WAKEUP_MCU                     GPIO_PB4   //module wakeup mcu
+    #define PB4_FUNC                            AS_GPIO
+    #define PB4_INPUT_ENABLE                    1
+    #define PB4_OUTPUT_ENABLE                   1
+    #define PB4_DATA_OUT                        1
+    #define PULL_WAKEUP_SRC_PB4                 PM_PIN_PULLUP_10K
     #define GPIO_WAKEUP_MCU_HIGH                do{gpio_set_output_en(GPIO_WAKEUP_MCU, 1); gpio_write(GPIO_WAKEUP_MCU, 1);}while(0)
     #define GPIO_WAKEUP_MCU_LOW                 do{gpio_set_output_en(GPIO_WAKEUP_MCU, 1); gpio_write(GPIO_WAKEUP_MCU, 0);}while(0)
     #define GPIO_WAKEUP_MCU_FLOAT               do{gpio_set_output_en(GPIO_WAKEUP_MCU, 0); gpio_write(GPIO_WAKEUP_MCU, 0);}while(0)
 
-    #define GPIO_WAKEUP_IND                     GPIO_PD3   //module wakeup indication
-    #define PD3_FUNC                            AS_GPIO
-    #define PD3_INPUT_ENABLE                    1
-    #define PD3_OUTPUT_ENABLE                   1
-    #define PD3_DATA_OUT                        0
-    #define PULL_WAKEUP_SRC_PD3                 PM_PIN_PULLUP_10K
+    #define GPIO_WAKEUP_IND                     GPIO_PB5   //module wakeup indication
+    #define PB5_FUNC                            AS_GPIO
+    #define PB5_INPUT_ENABLE                    1
+    #define PB5_OUTPUT_ENABLE                   1
+    #define PB5_DATA_OUT                        0
+    #define PULL_WAKEUP_SRC_PB5                 PM_PIN_PULLUP_10K
     #define GPIO_WAKEUP_IND_HIGH                do{gpio_set_output_en(GPIO_WAKEUP_IND, 1); gpio_write(GPIO_WAKEUP_IND, 1);}while(0)
     #define GPIO_WAKEUP_IND_LOW                 do{gpio_set_output_en(GPIO_WAKEUP_IND, 1); gpio_write(GPIO_WAKEUP_IND, 0);}while(0)
     #define GPIO_WAKEUP_IND_FLOAT               do{gpio_set_output_en(GPIO_WAKEUP_IND, 0); gpio_write(GPIO_WAKEUP_IND, 0);}while(0)
 
 #endif
+#elif(BOARD_SELECT == BOARD_827X_EVK_C1T197A30)
+	//////////////////////////// MODULE PM GPIO	(EVK board) /////////////////////////////////
+	#define GPIO_WAKEUP_MODULE					GPIO_PA2   //mcu wakeup module
+	#define	PA2_FUNC							AS_GPIO
+	#define PA2_INPUT_ENABLE					1
+	#define	PA2_OUTPUT_ENABLE					0
+	#define	PA2_DATA_OUT						0
+	#define GPIO_WAKEUP_MODULE_HIGH				gpio_setup_up_down_resistor(GPIO_WAKEUP_MODULE, PM_PIN_PULLUP_10K);
+	#define GPIO_WAKEUP_MODULE_LOW				gpio_setup_up_down_resistor(GPIO_WAKEUP_MODULE, PM_PIN_PULLDOWN_100K);
+
+	#define GPIO_WAKEUP_MCU						GPIO_PA3   //module wakeup mcu
+	#define	PA3_FUNC							AS_GPIO
+	#define PA3_INPUT_ENABLE					1
+	#define	PA3_OUTPUT_ENABLE					1
+	#define	PA3_DATA_OUT						0
+	#define GPIO_WAKEUP_MCU_HIGH				do{gpio_set_output_en(GPIO_WAKEUP_MCU, 1); gpio_write(GPIO_WAKEUP_MCU, 1);}while(0)
+	#define GPIO_WAKEUP_MCU_LOW					do{gpio_set_output_en(GPIO_WAKEUP_MCU, 1); gpio_write(GPIO_WAKEUP_MCU, 0);}while(0)
+	#define GPIO_WAKEUP_MCU_FLOAT				do{gpio_set_output_en(GPIO_WAKEUP_MCU, 0); gpio_write(GPIO_WAKEUP_MCU, 0);}while(0)
+
 #endif
 
 
 
 
 ///////////////////////// System Clock  Configuration /////////////////////////////////////////
-#define CLOCK_SYS_CLOCK_HZ  								24000000
+#define CLOCK_SYS_CLOCK_HZ  								16000000
 
 #if (CLOCK_SYS_CLOCK_HZ == 16000000)
 	#define SYS_CLK_TYPE  									SYS_CLK_16M_Crystal
@@ -220,17 +242,8 @@ typedef struct{
 
 
 
-#define UART_PRINT_DEBUG_ENABLE							1
-/////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
-#if (UART_PRINT_DEBUG_ENABLE)
-		//the baud rate should not bigger than 1M(system timer clock is constant 16M)
-		#define PRINT_BAUD_RATE             					1000000
-		#define DEBUG_INFO_TX_PIN           					GPIO_PB1
-		#define PULL_WAKEUP_SRC_PB1         					PM_PIN_PULLUP_10K
-		#define PB1_OUTPUT_ENABLE         						1
-        #define PB1_DATA_OUT                                    1 //must
-	    #include "application/print/u_printf.h"
-#endif
+
+
 
 
 

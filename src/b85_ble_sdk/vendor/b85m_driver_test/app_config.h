@@ -87,7 +87,7 @@ extern "C" {
 
 
 
-#define DRIVER_TEST_MODE								TEST_UART
+#define DRIVER_TEST_MODE								TEST_LOW_POWER
 
 
 
@@ -160,7 +160,7 @@ enum{
 
 
 
-#define DEBUG_GPIO_ENABLE							0
+#define DEBUG_GPIO_ENABLE							1
 
 #if(DEBUG_GPIO_ENABLE)
 	//define debug GPIO here according to your hardware
