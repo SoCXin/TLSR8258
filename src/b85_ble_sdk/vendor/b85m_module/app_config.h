@@ -48,7 +48,7 @@
 
 
 /////////////////// MODULE /////////////////////////////////
-#define BLE_MODULE_PM_ENABLE				1
+#define BLE_MODULE_PM_ENABLE				0
 #define PM_DEEPSLEEP_RETENTION_ENABLE		0
 
 #define BLE_OTA_ENABLE						1
@@ -220,7 +220,7 @@ typedef struct{
 
 
 
-#define UART_PRINT_DEBUG_ENABLE							0
+#define UART_PRINT_DEBUG_ENABLE							1
 /////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
 #if (UART_PRINT_DEBUG_ENABLE)
 		//the baud rate should not bigger than 1M(system timer clock is constant 16M)
