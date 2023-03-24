@@ -171,7 +171,7 @@ void user_init(void)
 	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS,	\
 							OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
-
+	printf("scan begin\n");
 }
 
 

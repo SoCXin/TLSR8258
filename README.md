@@ -29,5 +29,3 @@
 [TLSR8258](https://github.com/SoCXin/TLSR8258) 相对TLSR8253、TLSR8251支持更多的协议，拥有更大的RAM，性价比最高的 [TLSR8251](https://github.com/SoCXin/TLSR8258)是小米米家温湿度传感器的主控芯片。
 
 TLSR827x系列继承了TLSR825x对多协议的支持，并做了广泛的性能优化，包括支持Bluetooth LE 5.1协议的角度寻向功能，集成RF电感减少BOM，增强音频功能，更宽的供电电压范围，预留Wi-Fi PTA硬件接口，并进一步提升DCDC效率从而降低了系统功耗。
-
-TLSR835x系列则配置了USB外设

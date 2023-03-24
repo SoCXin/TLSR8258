@@ -184,7 +184,7 @@ extern u8 	conn_char_handler[];
 			if(vc_event.cnt == 2)  //two key press
 			{
                 u8 dat[32]={0};
-                u8 * data = "Warning";
+                u8 * data = "TESTBLE";
 
                 #if (BLE_HOST_SIMPLE_SDP_ENABLE)
                 att_req_write_cmd(dat, 0x15, data, strlen(data));
