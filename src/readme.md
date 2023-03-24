@@ -12,6 +12,20 @@
 * WAKEUP PB6
 * BLE_GPIO PD2
 
+## Master
+
+B85m master kma dongle 是 BLE master single connection 的 demo，可以和 B85m ble sample/B85m ble remote/B85m module 连接并通信。
+
+发现协议是通过RSSI来进行判断的
+```
+    if(blm_push_fifo(BLM_CONN_HANDLE, dat)){}
+```
+
+scan 回调函数
+```
+    int blm_le_adv_report_event_handle(u8 *p)
+```
+
 ### module
 
 针对底板模组的BLE开发计划，用于新方案实现和测试闭环

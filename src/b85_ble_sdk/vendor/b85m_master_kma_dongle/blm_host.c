@@ -314,22 +314,24 @@ int app_host_smp_finish (void)  //smp finish callback
  * @param[in]  p - data pointer of event
  * @return     0
  */
+s8 g_ble_rssi = 0;
 int blm_le_adv_report_event_handle(u8 *p)
 {
 	event_adv_report_t *pa = (event_adv_report_t *)p;
 	s8 rssi = pa->data[pa->len];
-
+	g_ble_rssi = rssi;
+	u8 slmmac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
 	 //if previous connection smp&sdp not finish, can not create a new connection
 	if(app_host_smp_sdp_pending){
 		return 1;
 	}
 
 	/****************** Button press or Adv pair packet triggers pair ***********************/
-	int master_auto_connect = 0;
-	int user_manual_paring = 0;
+	int master_auto_connect = 1;
+	int user_manual_paring = 1;
 
 	//manual paring methods 1: button triggers
-	user_manual_paring = dongle_pairing_enable && (rssi > -56);  //button trigger pairing(rssi threshold, short distance)
+	// user_manual_paring = dongle_pairing_enable && (rssi > -56);  //button trigger pairing(rssi threshold, short distance)
 
 	//manual paring methods 2: special paring adv data
 	if(!user_manual_paring){  //special adv pair data can also trigger pairing
@@ -340,19 +342,20 @@ int blm_le_adv_report_event_handle(u8 *p)
 	#if (BLE_HOST_SMP_ENABLE)
 		master_auto_connect = tbl_bond_slave_search(pa->adr_type, pa->mac);
 	#else
+		
 		//search in slave mac table to find whether this device is an old device which has already paired with master
-		master_auto_connect = user_tbl_slave_mac_search(pa->adr_type, pa->mac);
+		master_auto_connect = user_tbl_slave_mac_search(pa->adr_type, slmmac);
 	#endif
 
 	if(master_auto_connect || user_manual_paring)
 	{
-
+		
 		//send create connection cmd to controller, trigger it switch to initiating state, after this cmd,
 		//controller will scan all the adv packets it received but not report to host, to find the specified
 		//device(adr_type & mac), then send a connection request packet after 150us, enter to connection state
 		// and send a connection complete event(HCI_SUB_EVT_LE_CONNECTION_COMPLETE)
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
-								 pa->adr_type, pa->mac, BLE_ADDR_PUBLIC, \
+								 pa->adr_type, slmmac, BLE_ADDR_PUBLIC, \
 								 CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 
@@ -362,7 +365,7 @@ int blm_le_adv_report_event_handle(u8 *p)
 				if(user_manual_paring && !master_auto_connect){  //manual pair
 					blm_manPair.manual_pair = 1;
 					blm_manPair.mac_type = pa->adr_type;
-					memcpy(blm_manPair.mac, pa->mac, 6);
+					memcpy(blm_manPair.mac, slmmac, 6);
 					blm_manPair.pair_tick = clock_time();
 				}
 			#endif
@@ -503,7 +506,8 @@ int 	blm_disconnect_event_handle(u8 *p)
 		}
 	#endif
 
-
+	// spp_restart_proc();
+	start_reboot();
 	cur_conn_device.conn_handle = 0;  //when disconnect, clear conn handle
 
 
@@ -523,11 +527,16 @@ int 	blm_disconnect_event_handle(u8 *p)
 	final_MTU_size = 23;
 
 	//should set scan mode again to scan slave adv packet
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS,
-							OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
-	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
+	// blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS,
+	// 						OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	// blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
-
+	// u8 slmmac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+	// event_adv_report_t *pa = (event_adv_report_t *)p;
+	// u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
+	// 				pa->adr_type, slmmac, BLE_ADDR_PUBLIC, \
+	// 				CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
+	// 				0, 0xFFFF);
 	return 0;
 }
 
@@ -593,6 +602,12 @@ int controller_event_callback (u32 h, u8 *p, int n)
 		if(evtCode == HCI_EVT_DISCONNECTION_COMPLETE)  //connection terminate
 		{
 			blm_disconnect_event_handle(p);
+			// u8 slmmac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+			// event_adv_report_t *pa = (event_adv_report_t *)p;
+			// u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
+			// 				pa->adr_type, slmmac, BLE_ADDR_PUBLIC, \
+			// 				CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
+			// 				0, 0xFFFF);
 		}
 #if (BLE_HOST_SMP_ENABLE)
 		else if(evtCode == HCI_EVT_ENCRYPTION_CHANGE)

@@ -81,7 +81,6 @@
 #if (UI_AUDIO_ENABLE)//Audio enable
 
 	#define BLE_DMIC_ENABLE					0  //0: Amic   1: Dmic
-
 	/* Dongle Audio MODE:
 	 * TL_AUDIO_DONGLE_ADPCM_GATT_TELINK
 	 * TL_AUDIO_DONGLE_ADPCM_GATT_GOOGLE
@@ -101,8 +100,6 @@
 			#define GOOGLE_VOICE_MODE	0x00	//	0x00: On-request; 0x01:PTT;	0x03:HTT
 		#endif
 	#endif
-
-
 
 #endif
 
@@ -192,7 +189,7 @@
 #if (TL_AUDIO_MODE & (TL_AUDIO_MASK_SBC_MODE|TL_AUDIO_MASK_MSBC_MODE))
 #define CLOCK_SYS_CLOCK_HZ  								48000000
 #else
-#define CLOCK_SYS_CLOCK_HZ  								32000000
+#define CLOCK_SYS_CLOCK_HZ  								48000000
 #endif
 
 #if (CLOCK_SYS_CLOCK_HZ == 16000000)

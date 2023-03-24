@@ -162,16 +162,20 @@ void user_init(void)
 	extern int host_att_register_idle_func (void *p);
 	host_att_register_idle_func (main_idle_loop);
 
-
-
+	
+	u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+	// event_adv_report_t *pa = (event_adv_report_t *)p;
+	u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
+					1, slm160mac, BLE_ADDR_PUBLIC, \
+					CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
+					0, 0xFFFF);
 
 
 	//set scan parameter and scan enable
 
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS,	\
-							OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
-	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
-	printf("scan begin\n");
+	// blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS,	\
+	// 						OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	// blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 }
 
 
@@ -184,6 +188,7 @@ void user_init(void)
  * @param[in]  none.
  * @return     none.
  */
+static u8 s_run_cnt = 0;
 int main_idle_loop (void)
 {
 
@@ -212,7 +217,36 @@ int main_idle_loop (void)
 	if(button_detect_en && clock_time_exceed(button_detect_tick, 5000))
 	{
 		button_detect_tick = clock_time();
-		proc_button();  //button triggers pair & unpair  and OTA
+		proc_button();  //button triggers pair & unpair and OTA
+		// if(button_update_en) 
+		{
+			// button_update_en = 0;
+			u8 dat[32]={0};
+			// u8 data[20]={0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+			// extern s8 g_ble_rssi;
+			// data[0]= g_ble_rssi;
+			// data[19]= s_run_cnt++;
+			u8 * data = "0123456789ABCDEFGHIJ";
+			// printf("RSSI %d", g_ble_rssi);
+			// memset(data, 0, sizeof(data));
+			
+    		// sprintf(data, "RSSI: %d\r", g_ble_rssi);
+			#if (BLE_HOST_SIMPLE_SDP_ENABLE)
+				att_req_write_cmd(dat, 0x15, data,20);
+			#else
+				att_req_write_cmd(dat, 25, data, 20);
+			#endif
+			if(blm_push_fifo(BLM_CONN_HANDLE, dat)){
+			}
+		}
+	}
+	if(blc_ll_getCurrentState() != BLS_LINK_STATE_CONN && clock_time_exceed(button_detect_tick, 1000)){
+		u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+		// event_adv_report_t *pa = (event_adv_report_t *)p;
+		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
+						1, slm160mac, BLE_ADDR_PUBLIC, \
+					CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
+					0, 0xFFFF);
 	}
 #endif
 
