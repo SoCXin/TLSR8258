@@ -66,7 +66,7 @@ MYFIFO_INIT(blt_rxfifo, 64, 16);
 MYFIFO_INIT(blt_txfifo, 40, 8);
 
 extern void usb_handle_irq(void);
-
+u8 slavemac[7]={0x33,0x30,0x30,0x36,0x31,0x36,0}; 
 /**
  * @brief		user initialization
  * @param[in]	none
@@ -160,17 +160,16 @@ void user_init(void)
 
 
 	extern int host_att_register_idle_func (void *p);
-	host_att_register_idle_func (main_idle_loop);
+	host_att_register_idle_func (main_idle_loop); 
 
 	
 	// u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
-	u8 slm160mac[6]={0x33,0x30,0x30,0x36,0x31,0x36}; 
 	// event_adv_report_t *pa = (event_adv_report_t *)p;
 	u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
-					1, slm160mac, BLE_ADDR_PUBLIC, \
+					1, slavemac, BLE_ADDR_PUBLIC, \
 					CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
 					0, 0xFFFF);
-
+  
 
 	//set scan parameter and scan enable
 
@@ -243,10 +242,10 @@ int main_idle_loop (void)
 	}
 	if(blc_ll_getCurrentState() != BLS_LINK_STATE_CONN && clock_time_exceed(button_detect_tick, 1000)){
 		// u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
-		u8 slm160mac[6]={0x33,0x30,0x30,0x36,0x31,0x36};
+		// u8 slm160mac[6]={0x33,0x30,0x30,0x36,0x31,0x36};
 		// event_adv_report_t *pa = (event_adv_report_t *)p;
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
-						1, slm160mac, BLE_ADDR_PUBLIC, \
+						1, slavemac, BLE_ADDR_PUBLIC, \
 					CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
 					0, 0xFFFF);
 	}
