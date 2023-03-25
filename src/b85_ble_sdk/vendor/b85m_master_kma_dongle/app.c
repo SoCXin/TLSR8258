@@ -163,7 +163,8 @@ void user_init(void)
 	host_att_register_idle_func (main_idle_loop);
 
 	
-	u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+	// u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+	u8 slm160mac[6]={0x33,0x30,0x30,0x36,0x31,0x36}; 
 	// event_adv_report_t *pa = (event_adv_report_t *)p;
 	u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
 					1, slm160mac, BLE_ADDR_PUBLIC, \
@@ -241,7 +242,8 @@ int main_idle_loop (void)
 		}
 	}
 	if(blc_ll_getCurrentState() != BLS_LINK_STATE_CONN && clock_time_exceed(button_detect_tick, 1000)){
-		u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+		// u8 slm160mac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
+		u8 slm160mac[6]={0x33,0x30,0x30,0x36,0x31,0x36};
 		// event_adv_report_t *pa = (event_adv_report_t *)p;
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
 						1, slm160mac, BLE_ADDR_PUBLIC, \
