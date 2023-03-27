@@ -66,7 +66,13 @@ MYFIFO_INIT(blt_rxfifo, 64, 16);
 MYFIFO_INIT(blt_txfifo, 40, 8);
 
 extern void usb_handle_irq(void);
-u8 slavemac[7]={0x33,0x30,0x30,0x36,0x31,0x36,0}; 
+u8 slavemac[7]={0x30,0x30,0x30,0x36,0x31,0x36,0}; 
+static u32 send_cnt = 0;
+static u32 send_round_tick = 0;
+void send_cnt_rst(void)
+{
+	send_cnt = 0;
+}
 /**
  * @brief		user initialization
  * @param[in]	none
@@ -208,8 +214,10 @@ int main_idle_loop (void)
 
 
 	////////////////////////////////////// UI entry /////////////////////////////////
-#if (UI_BUTTON_ENABLE)
 	static u8 button_detect_en = 0;
+	unsigned char i;
+	u8 dat[32]={0};
+	u8 data[40]={'t','e','s','t','-','r','o','u','n','d','-','-','-','-','-','-','-','-','-'};
 	if(!button_detect_en && clock_time_exceed(0, 1000000)){// proc button 1 second later after power on
 		button_detect_en = 1;
 	}
@@ -221,23 +229,9 @@ int main_idle_loop (void)
 		// if(button_update_en) 
 		{
 			// button_update_en = 0;
-			u8 dat[32]={0};
-			// u8 data[20]={0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-			// extern s8 g_ble_rssi;
-			// data[0]= g_ble_rssi;
-			// data[19]= s_run_cnt++;
-			u8 * data = "0123456789ABCDEFGHIJ";
 			// printf("RSSI %d", g_ble_rssi);
 			// memset(data, 0, sizeof(data));
-			
     		// sprintf(data, "RSSI: %d\r", g_ble_rssi);
-			#if (BLE_HOST_SIMPLE_SDP_ENABLE)
-				att_req_write_cmd(dat, 0x15, data,20);
-			#else
-				att_req_write_cmd(dat, 25, data, 20);
-			#endif
-			if(blm_push_fifo(BLM_CONN_HANDLE, dat)){
-			}
 		}
 	}
 	if(blc_ll_getCurrentState() != BLS_LINK_STATE_CONN && clock_time_exceed(button_detect_tick, 1000)){
@@ -249,9 +243,33 @@ int main_idle_loop (void)
 					CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
 					0, 0xFFFF);
 	}
-#endif
-
-
+	
+	if(clock_time_exceed(send_round_tick, 20000))
+	{
+		send_round_tick = clock_time();
+		send_cnt++;
+		for(i=10;i<40;i++)
+		{
+			data[i] = '0';
+		}
+		data[19] = '0' + send_cnt%10;
+		data[18] = '0' + (send_cnt%100)/10;
+		data[17] = '0' + (send_cnt%1000)/100;
+		
+		// #if (BLE_HOST_SIMPLE_SDP_ENABLE)
+		// att_req_write_cmd(dat, 0x15, data, 20);
+		// #else
+		// att_req_write_cmd(dat, 25, data, 20);
+		// #endif	
+		att_req_write(dat, 0x15, data, 40);
+		// bls_att_pushNotifyData(BLM_CONN_HANDLE, data, 40);
+		// if (host_att_service_wait_event(BLM_CONN_HANDLE, dat, 1000000))
+		if(blm_push_fifo(BLM_CONN_HANDLE, dat))
+		{
+			
+		}
+	}
+	
 	////////////////////////////////////// proc audio ////////////////////////////////
 #if (UI_AUDIO_ENABLE)
 	proc_audio();

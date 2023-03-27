@@ -588,6 +588,7 @@ int blm_le_phy_update_complete_event_proc(u8 *p)
  * @param[in]  n - data length of event
  * @return     0
  */
+extern void send_cnt_rst(void);
 int controller_event_callback (u32 h, u8 *p, int n)
 {
 
@@ -601,13 +602,9 @@ int controller_event_callback (u32 h, u8 *p, int n)
 		//------------ disconnect -------------------------------------
 		if(evtCode == HCI_EVT_DISCONNECTION_COMPLETE)  //connection terminate
 		{
+			
+			send_cnt_rst();
 			blm_disconnect_event_handle(p);
-			// u8 slmmac[6]={0,0,0,0x33,0x6e,0xc4}; //pa->mac
-			// event_adv_report_t *pa = (event_adv_report_t *)p;
-			// u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, INITIATE_FP_ADV_SPECIFY,  \
-			// 				pa->adr_type, slmmac, BLE_ADDR_PUBLIC, \
-			// 				CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
-			// 				0, 0xFFFF);
 		}
 #if (BLE_HOST_SMP_ENABLE)
 		else if(evtCode == HCI_EVT_ENCRYPTION_CHANGE)
@@ -634,6 +631,16 @@ int controller_event_callback (u32 h, u8 *p, int n)
 				//equals to connection establish. connection complete means that master controller set all the ble timing
 				//get ready, but has not received any slave packet, if slave rf lost the connection request packet, it will
 				//not send any packet to master controller
+				u8 dat[32]={0};
+				send_cnt_rst();
+				u8 * data = "firstframefordebug.";
+				#if (BLE_HOST_SIMPLE_SDP_ENABLE)
+					att_req_write_cmd(dat, 0x15, data, 20);
+				#else
+					att_req_write_cmd(dat, 25, data, 20);
+				#endif
+				if(blm_push_fifo(BLM_CONN_HANDLE, dat)){
+				}
 			}
 			//------hci le event: le connection establish event---------------------------------
 			else if(subEvt_code == HCI_SUB_EVT_LE_CONNECTION_ESTABLISH)  //connection establish(telink private event)
@@ -644,6 +651,15 @@ int controller_event_callback (u32 h, u8 *p, int n)
 				//connection establish event to host(HCI_SUB_EVT_LE_CONNECTION_ESTABLISH)
 
 				blm_le_connection_establish_event_handle(p);
+				// u8 dat[32]={0};
+				// u8 * data = "firstframecodefordebug";
+				// #if (BLE_HOST_SIMPLE_SDP_ENABLE)
+				// 	att_req_write_cmd(dat, 0x15, data, 20);
+				// #else
+				// 	att_req_write_cmd(dat, 25, data, 20);
+				// #endif
+				// if(blm_push_fifo(BLM_CONN_HANDLE, dat)){
+				// }
 			}
 			//--------hci le event: le adv report event ----------------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_ADVERTISING_REPORT)	// ADV packet
